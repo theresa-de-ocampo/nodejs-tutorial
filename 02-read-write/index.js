@@ -1,4 +1,5 @@
 const fs = require("fs");
+const fsPromises = require("fs").promises;
 const path = require("path");
 
 /*
@@ -18,10 +19,13 @@ fs.readFile("./files/starter.txt", "utf8", (error, data) => {
 
  */
 
+/*
+    [METHOD 3]
 fs.readFile(path.join(__dirname, "files", "starter.txt"), "utf8", (error, data) => {
     if (error) throw error;
     console.log(data);
 });
+*/
 
 /*
     Controlling Flow
@@ -50,8 +54,32 @@ fs.writeFile(path.join(__dirname, "files", "reply.txt"), "This is my 2nd try of 
 });
 */
 
+async function fileOperations() {
+    try {
+        const data = await fsPromises.readFile(path.join(__dirname, "files", "starter.txt"), "utf8");
+        console.log(data);
+        await fsPromises.unlink(path.join(__dirname, "files", "starter.txt"));
+        await fsPromises.writeFile(path.join(__dirname, "files", "promises-write.txt"), data);
+        await fsPromises.appendFile(
+            path.join(__dirname, "files", "promises-write.txt"), "\nNice to meet you."
+        );
+        await fsPromises.rename(
+            path.join(__dirname, "files", "promises-write.txt"),
+            path.join(__dirname, "files", "promise-complete.txt")
+        );
+        const newData = await fsPromises.readFile(
+            path.join(__dirname, "files", "promise-complete.txt"), "utf8"
+        );
+        console.log("-------------------");
+        console.log(newData);
+    }
+    catch (e) {
+        console.error(e);
+    }
+}
+fileOperations();
+
 console.log("This will print first before the file contents.");
-console.log(__dirname);
 
 // Exit on Uncaught Errors
 process.on("uncaughtException", error => {
